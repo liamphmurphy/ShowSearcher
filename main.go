@@ -13,7 +13,7 @@ import (
 )
 
 type Config struct {
-	ApiKey string
+	APIKey string
 }
 
 type Movie struct {
@@ -36,14 +36,14 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		ApiKey: configFile.ApiKey,
+		APIKey: configFile.APIKey,
 	}
 
 }
 
 func main() {
 	config := LoadConfig()
-	apiKey := config.ApiKey
+	apiKey := config.APIKey
 
 	// Prepare reader for user input
 	reader := bufio.NewReader(os.Stdin)
@@ -58,7 +58,6 @@ func main() {
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "http://www.omdbapi.com/?t="+userMovie+"&apikey="+apiKey, nil)
-	//req.Header.Set("apikey", "1c20b2b2")
 	//req, err := http.NewRequest("GET", "http://www.omdbapi.com/?t=Blade+Runner", nil)
 	if err != nil {
 		panic(err.Error())
@@ -79,5 +78,4 @@ func main() {
 
 	fmt.Println(m)
 
-	fmt.Println(m.Title)
 }
