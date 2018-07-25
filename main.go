@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/BurntSushi/toml"
 )
@@ -17,15 +16,9 @@ type Config struct {
 }
 
 type Movie struct {
-	Title       string `json:"Title"`
-	Year        string `json:"Year"`
-	Rating      string `json:"Rated"`
-	ReleaseDate string `json:"Released"`
-	Runtime     string `json:"Runtime"`
-	Genre       string `json:"Genre"`
-	Director    string `json:"Director"`
-	Writer      string `json:"Writer"`
-	Actors      string `json:"Actors"`
+	Results []struct {
+		Title string `json:"title"`
+	} `json:"results"`
 }
 
 func LoadConfig() *Config {
@@ -51,13 +44,17 @@ func main() {
 	// Actually get user input
 	userMovie, _ := reader.ReadString('\n')
 	fmt.Println("Searching for: " + userMovie)
-	// Replace \n with empty value to not mess up http request.
-	userMovie = strings.Replace(userMovie, "\n", "", -1)
-	// Replace spaces in user input with + for url compatibility
-	userMovie = strings.Replace(userMovie, " ", "+", -1)
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", "http://www.omdbapi.com/?t="+userMovie+"&apikey="+apiKey, nil)
+	requestURL := "https://api.themoviedb.org/3/search/movie"
+	req, err := http.NewRequest("GET", requestURL, nil)
+	// Use Query to properly encode URL values
+	query := req.URL.Query()
+	query.Add("api_key", apiKey)
+	query.Add("query", userMovie)
+	req.URL.RawQuery = query.Encode()
+
+	fmt.Println(req)
 	//req, err := http.NewRequest("GET", "http://www.omdbapi.com/?t=Blade+Runner", nil)
 	if err != nil {
 		panic(err.Error())
@@ -66,6 +63,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error: %s", err)
 	}
+	fmt.Println(resp)
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
