@@ -17,7 +17,10 @@ type Config struct {
 
 type Movie struct {
 	Results []struct {
-		Title string `json:"title"`
+		Title       string  `json:"title"`
+		Average     float64 `json:"vote_average"`
+		ReleaseDate string  `json:"release_date"`
+		Genres      []int   `json:"genre_ids"`
 	} `json:"results"`
 }
 
@@ -54,8 +57,6 @@ func main() {
 	query.Add("query", userMovie)
 	req.URL.RawQuery = query.Encode()
 
-	fmt.Println(req)
-	//req, err := http.NewRequest("GET", "http://www.omdbapi.com/?t=Blade+Runner", nil)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -63,7 +64,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error: %s", err)
 	}
-	fmt.Println(resp)
+
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -74,6 +75,8 @@ func main() {
 	m := Movie{}
 	json.Unmarshal(body, &m)
 
-	fmt.Println(m)
+	for _, v := range m.Results {
+		fmt.Println(v)
+	}
 
 }
